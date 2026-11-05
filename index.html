@@ -719,8 +719,9 @@ details img { width: 100%; height: auto; }
 <div class="view sheet" data-view="conclusion" hidden>
   <h1>結論</h1>
   <div class="text" style="display:flex;flex-direction:column;gap:12px">
-    <p>第一階段：YOLO11s（You Only Look Once 第 11 代，s 尺寸）逐幀偵測張嘴、手、皺眉、嘴四類，測試集四類的精確率（Precision, P）為 0.717～0.908，都達到 0.70 的目標；手在嘴邊由手框與嘴框是否重疊或相接判斷，驗證集精確率 0.900、召回率（Recall, R）0.375。</p>
-    <p>第二階段：用時間窗累積，把逐幀結果變成兩種提示（飢餓徵兆、哭泣），哭泣時並標示是否同時有飢餓徵兆。依事前訂定的規則，從 39 組候選參數中為哭泣與飢餓徵兆各選出一組：哭泣提示 P 1.000、R 0.483，飢餓徵兆提示 P 0.750、R 0.583。這是驗證集上的開發評估，分數偏樂觀。</p>
+    <p>本專題建立了一套兩階段的嬰兒表情辨識系統。第一階段以 YOLO11s（You Only Look Once 第 11 代，s 尺寸）逐幀偵測張嘴、手、皺眉、嘴，測試集四類的精確率（Precision, P）為 0.717～0.908，皆達到 0.70 的目標；第二階段以時間窗累積逐幀結果，產生飢餓徵兆與哭泣兩種提示。在驗證集 19 部影片上，哭泣提示 P 1.000、召回率（Recall, R）0.483，飢餓徵兆提示 P 0.750、R 0.583。</p>
+    <p>漏報主要有兩個原因：一是皺眉的標註範圍很小，測試集 R 只有 0.521，而哭泣必須同一幀張嘴且皺眉，因此哭泣提示的 R 也受限；二是手把嘴整個蓋住時偵測不到嘴框，無法判斷手在嘴邊（驗證集 R 0.375）。</p>
+    <p>整體來說，本專題顯示一般攝影機畫面搭配物件偵測與時序規則，可以在嬰兒大哭前提示飢餓徵兆。未來將在測試集影片上評估、增加皺眉樣本並處理手遮嘴的情況，並加入聲音辨識驗證哭泣。</p>
   </div>
   <nav class="pager" aria-label="分頁導覽"><a href="#showcase">← 上一頁：成果展示</a><a href="#references">下一頁：參考文獻 →</a></nav>
 </div>
@@ -802,6 +803,7 @@ details img { width: 100%; height: auto; }
   }
   function fromHash() { var h = ''; try { h = (location.hash || '').replace('#', ''); } catch (e) {} return h || 'home'; }
   window.addEventListener('hashchange', function () { show(fromHash()); });
+  window.addEventListener('popstate', function () { show(fromHash()); });
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#"]');
     if (!a) return;
@@ -809,7 +811,7 @@ details img { width: 100%; height: auto; }
     if (VIEWS.indexOf(name) < 0) return;
     e.preventDefault();
     show(name);
-    try { if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name); } catch (err) {}
+    try { if (location.hash !== '#' + name) history.pushState(null, '', '#' + name); } catch (err) {}
   });
   show(fromHash(), true);
   document.querySelectorAll('[data-jump]').forEach(function (b) {
